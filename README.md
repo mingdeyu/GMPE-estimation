@@ -130,4 +130,6 @@ We will update this section soon...
 The scripts are built under MATLAB version R2018a.
 
 ## Contact
-Created by @mingdeyu - feel free to contact me!
+Please feel free to email me with any questions: 
+
+Deyu Ming (deyu.ming.16@ucl.ac.uk).
