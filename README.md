@@ -38,7 +38,7 @@ The repository currently contains the following items:
 * `generator.m`: the MATLAB function that generates synthetic logarithmic intensity measures (IM).
 
 ## A synthetic example
-This example illustrates how to estimate the GMPE based on simulated logarithmic IM. 
+This example illustrates a step-by-step instruction on how to use the Scoring estimation approach to estimate a GMPE with spatial correlation based on a synthetic dataset of logarithmic PGA. 
 
 * **Step 1 - Data preparation** 
 
