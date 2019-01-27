@@ -18,7 +18,7 @@ and four correlation functions:
 
   <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;k(d)=\exp\left(-\frac{d}{h}\right)&space;\end{align*}" title="\small \begin{align*} k(d)=\exp\left(-\frac{d}{h}\right) \end{align*}" />
 
-* Matern with nu=1.5:
+* Matern with &nu;=1.5:
 
   <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;k(d)=\left(1&plus;\frac{\sqrt{3}d}{h}\right)\exp\left(-\frac{\sqrt{3}d}{h}\right)&space;\end{align*}" title="\small \begin{align*} k(d)=\left(1+\frac{\sqrt{3}d}{h}\right)\exp\left(-\frac{\sqrt{3}d}{h}\right) \end{align*}" />
 
