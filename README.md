@@ -1,3 +1,4 @@
+# GMPE-estimation
 This repository provides the MATLAB scripts used to estimate ground-motion prediction equations (GMPE) with spatial correlation. The scripts are produced as by-products of the forthcoming paper:
 
 > Ming, D., Huang, C., Peters, G.W., and Galasso, C. An advanced estimation algorithm for ground-motion models with spatial correlation. *Bulletin of the Seismological Society of America* (forthcoming), 2018.
