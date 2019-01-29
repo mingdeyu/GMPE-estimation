@@ -87,7 +87,7 @@ y=generator(x,w,id,para,h,n,cf);
   The estimation of GMPE is then can be implemented by executing the following scripts:
 
 ```
-%Set the initial value for the nonlinear coefficients (b<sub>6</sub> in this example)
+%Set the initial value for the nonlinear coefficients (b_6 in this example)
 gamma0=para(6)-1;
 
 %Set initial values for the inter- and intraevent variances and the range parameter h
@@ -129,7 +129,7 @@ Note: your outputs will differ from the above depending on your synthetic data.
 ## A real data example
 We will update this section soon...
 
-## Built With
+## Built with
 The scripts are built under MATLAB version R2018a.
 
 ## Contact
