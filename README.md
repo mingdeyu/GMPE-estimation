@@ -127,7 +127,7 @@ Note: your outputs will differ from the above depending on your synthetic data.
 
   The estimation results can be extracted from the following four variables:
 
-  - ```l```: the AIC and BIC values;
+  - ```info```: the AIC and BIC values;
   - ```l```: the log-likelihood value at convergence;
   - ```estimates```: the estimates of all model parameters;
   - ```se```: the asymptotic standard error estimates of ML estimators of model parameters;
