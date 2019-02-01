@@ -230,6 +230,7 @@ initial0_exp=[gamma0;tau20;sigma20_exp;h0_exp];
 
 %Begin estimation
 [info_exp,ll_exp,estimates_exp,se_exp,ci_exp]=scoring(y,x,w,id,initial0_exp,tol,cl,'Exp');
+
 %%%%%%%%%%%%COMMAND WINDOW OUTPUTS%%%%%%%%%%%%
       .             .             .
       .             .             .
