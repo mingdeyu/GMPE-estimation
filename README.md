@@ -21,7 +21,7 @@ and four correlation functions:
 
   <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;k(d)=\exp\left(-\frac{d}{h}\right)&space;\end{align*}" title="\small \begin{align*} k(d)=\exp\left(-\frac{d}{h}\right) \end{align*}" />
 
-* Matern with &nu;=1.5:
+* Mat&eacute;rn with &nu;=1.5:
 
   <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;k(d)=\left(1&plus;\frac{\sqrt{3}d}{h}\right)\exp\left(-\frac{\sqrt{3}d}{h}\right)&space;\end{align*}" title="\small \begin{align*} k(d)=\left(1+\frac{\sqrt{3}d}{h}\right)\exp\left(-\frac{\sqrt{3}d}{h}\right) \end{align*}" />
 
@@ -109,7 +109,7 @@ tol=0.0001;
 cl=95;
 
 %Begin the estimation
-[l,estimates,se,ci]=scoring(y,x,w,id,initial0,tol,cl,cf);
+[info,l,estimates,se,ci]=scoring(y,x,w,id,initial0,tol,cl,cf);
 
 %%%%%%%%%%%%COMMAND WINDOW OUTPUTS%%%%%%%%%%%%
   Iteration 0 Loglikelihood   107.7564
@@ -127,6 +127,7 @@ Note: your outputs will differ from the above depending on your synthetic data.
 
   The estimation results can be extracted from the following four variables:
 
+  - ```l```: the AIC and BIC values;
   - ```l```: the log-likelihood value at convergence;
   - ```estimates```: the estimates of all model parameters;
   - ```se```: the asymptotic standard error estimates of ML estimators of model parameters;
