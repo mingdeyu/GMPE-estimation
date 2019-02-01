@@ -278,7 +278,7 @@ load('Italyborder.mat')
 latRange=[40.68,45.18];
 lonRang=[10.68,15.18];
 
-%Draw the shakemap without using the logscale color bar
+%Draw the shakemap without the log-scaled color (0) bar
 lim=[min(z_hat_exp),max(z_hat_exp)]
 f=shakemap(latRange,lonRang,Italyborder,w_event,v_event,z_hat_exp,0,lim);
 title('ShakeMap of M_W 5.6','fontsize',10);
@@ -296,7 +296,7 @@ title(hcb,'log_{10}(PGA)','fontsize',6);
 %Make predictions on grid points and set the base to '10'
 z_hat_exp_delog=prediction(y_event,x_event,u_event,w_event,v_event,estimates_exp,'Exp','10');
 
-%Draw the shakemap with log-scaled color bar
+%Draw the shakemap with log-scaled (1) color bar
 lim=[min(z_hat_exp_delog),max(z_hat_exp_delog)]
 f=shakemap(latRange,lonRang,Italyborder,w_event,v_event,z_hat_exp_delog,1,lim);
 title('ShakeMap of M_W 5.6','fontsize',10);
