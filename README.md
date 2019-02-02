@@ -311,6 +311,9 @@ The resulting shake map is shown below:
 ## Built with
 The scripts are built under MATLAB version R2018a.
 
+## License
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details
+
 ## Contact
 Please feel free to email me with any questions: 
 
