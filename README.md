@@ -286,7 +286,7 @@ hcb=colorbar;
 title(hcb,'log_{10}(PGA)','fontsize',6);
 ```
 
- The produced shake map in terms of log<sub>10</sub>(PGA) is shown below. 
+ The produced shake map in terms of log<sub>10</sub>(PGA) is shown below, where the triangles are recording sites. 
 
 <img src="https://raw.githubusercontent.com/mingdeyu/GMPE-estimation/master/tutorial_figures/shakemap_logpga.png" width="500">
 
@@ -304,7 +304,7 @@ hcb=colorbar;
 title(hcb,'PGA (cm/s^2)','fontsize',6);
 ```
 
-The resulting shake map is shown below:
+The resulting shake map is shown below, where the triangles are recording sites.
 
 <img src="https://raw.githubusercontent.com/mingdeyu/GMPE-estimation/master/tutorial_figures/shakemap_pga.png" width="500">
 
@@ -312,7 +312,7 @@ The resulting shake map is shown below:
 The scripts are built under MATLAB version R2018a.
 
 ## License
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details
+The scripts are licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 Please feel free to email me with any questions: 
