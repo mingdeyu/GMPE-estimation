@@ -1,5 +1,3 @@
-<img src="https://raw.githubusercontent.com/mingdeyu/GMPE-estimation/master/logo/Logo.png" width="1000">
-
 # GMPE-estimation
 
 This repository provides the MATLAB scripts used to estimate ground-motion prediction equations (GMPE) with spatial correlation. The scripts are produced as by-products of the forthcoming paper:
