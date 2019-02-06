@@ -249,7 +249,7 @@ initial0_exp=[gamma0;tau20;sigma20_exp;h0_exp];
 
 * **Step 4 - Prediction** 
 
-  In this step, we show how to draw a ShakeMap for a given event based on the GMPE estimated in Step 3.
+  In this step, we show how to draw a shake map for a given event based on the GMPE estimated in Step 3.
 ```
 %Define the event under consideration
 eventid='IT-1997-0137';
@@ -276,10 +276,10 @@ load('Italyborder.mat')
 latRange=[40.68,45.18];
 lonRang=[10.68,15.18];
 
-%Draw the shakemap without the log-scaled color (0) bar
+%Draw the shake map without the log-scaled color (0) bar
 lim=[min(z_hat_exp),max(z_hat_exp)];
 f=shakemap(latRange,lonRang,Italyborder,w_event,v_event,z_hat_exp,0,lim);
-title('ShakeMap of M_W 5.6','fontsize',10);
+title('Shake map of M_W 5.6','fontsize',10);
 hcb=colorbar;
 title(hcb,'log_{10}(PGA)','fontsize',6);
 ```
@@ -297,7 +297,7 @@ z_hat_exp_delog=prediction(y_event,x_event,u_event,w_event,v_event,estimates_exp
 %Draw the shakemap with log-scaled (1) color bar
 lim=[min(z_hat_exp_delog),max(z_hat_exp_delog)];
 f=shakemap(latRange,lonRang,Italyborder,w_event,v_event,z_hat_exp_delog,1,lim);
-title('ShakeMap of M_W 5.6','fontsize',10);
+title('Shake map of M_W 5.6','fontsize',10);
 hcb=colorbar;
 title(hcb,'PGA (cm/s^2)','fontsize',6);
 ```
