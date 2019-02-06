@@ -16,7 +16,7 @@
 
 function f=shakemap(latRange,lonRang,border,station,predloc,prediction,logscale,lim)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%This function draws the ShakeMap
+%This function draws the Shake map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INPUTS:
 % latRange: a vector containing the max and min latitudes;
@@ -42,7 +42,7 @@ function f=shakemap(latRange,lonRang,border,station,predloc,prediction,logscale,
 % lim: a two-element vector specify the limits of colorbar and colormap.
 %
 % OUTPUTS:
-% ShakeMap.
+% Shake map.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 f=figure;
 worldmap(latRange, lonRang);
