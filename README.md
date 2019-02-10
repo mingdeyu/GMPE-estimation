@@ -7,7 +7,7 @@ This repository provides the MATLAB scripts used to estimate ground-motion predi
 ## General info
 The current version of the estimation scripts only support the GMPE proposed by [Akkar and Bommer (2010)](https://pubs.geoscienceworld.org/ssa/srl/article-abstract/81/2/195/143661/empirical-equations-for-the-prediction-of-pga-pgv?redirectedFrom=fulltext):
 
-<img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;(b_4&plus;b_5\,M_i)\log\sqrt{R_{ij}^2&plus;b_6^2}&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
+<img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;(b_4&plus;b_5\,M_i)\log_{10}\sqrt{R_{ij}^2&plus;b_6^2}&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
 
 and four correlation functions:
 
