@@ -13,7 +13,7 @@ and four correlation functions:
 
 * No spatial correlation:
 
-  <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;k(d)=0&space;\end{align*}" title="\small \begin{align*} k(d)=0 \end{align*}" />
+  <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;k(d)=\mathbf{1}_{\{d=0\}}&space;\end{align*}" title="\small \begin{align*} k(d)=0 \end{align*}" />
 
 * Exponential:
 
