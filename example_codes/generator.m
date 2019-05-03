@@ -5,7 +5,7 @@
 %(at your option) any later version.
 %
 %Copyright (C): Deyu MING
-%Date: 5 Feb. 2019
+%Date: 2 May 2019
 %Affiliation: Dept of Statistical Science at University College London
 %Email: deyu.ming.16@ucl.ac.uk
 %
@@ -14,9 +14,9 @@
 % spatial correlation. BSSA, 2019.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function y=generator(x,w,id,b,h,n,cf)
+function y=generator(x,w,id,beta,gamma,theta,g,n,cf)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%This function generates n synthetic PGA data.
+% This function generates n synthetic PGA data.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INPUTS:
 % x: the covariates in the mean function f(X_ij);
@@ -25,11 +25,15 @@ function y=generator(x,w,id,b,h,n,cf)
 %
 % id: a vector containing values to differeniate earthquakes;
 %
-% b: the chosen true values of model parameters in the mean function f(X_ij) and
-% \tau, and \sigma;
+% beta: the chosen true values of linear coefficients in the mean function f(X_ij); 
 %
-% h: the chosen true value of the range parameter in the exponential
-% correlation function;
+% gamma: the chosen true values of nonlinear coefficients in the mean 
+% function f(X_ij); 
+%
+% theta: the chosen true values of \tau2, \sigma2, and h;
+%
+% g: a function handle of the user-defined design matrix function for the
+% linear coefficients;
 %
 % n: the number of the simulating trials to be generated;
 %
@@ -39,11 +43,8 @@ function y=generator(x,w,id,b,h,n,cf)
 % OUTPUT:
 % y: n synthetic PGA data with each column representing one of n trials;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-f=b(1)+b(2).*x(:,1)+b(3).*x(:,1).^2+0.5*(b(4)+b(5).*x(:,1)).*log10(x(:,2).^2+b(6)^2)...
-    +b(7).*x(:,3)+b(8).*x(:,4)+b(9).*x(:,5)+b(10).*x(:,6);
+f=g(x,gamma)*beta;
 c=sepdis(w,id);
-theta=[b(11)^2,b(12)^2,h];
 switch cf
     case 'Exp'
 Omega=CovExp(theta,c);
