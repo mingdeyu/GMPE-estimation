@@ -259,12 +259,13 @@ output_real=scoring(y,x,w,id,@design,@Bg,gamma0_exp,theta0_exp,tol,cl,'Exp');
       .             .             .
       .             .             .
       .             .             .
-  Iteration 32 Loglikelihood  -675.1151
-  Iteration 33 Loglikelihood  -675.1149
-  Iteration 34 Loglikelihood  -675.1147
-  Iteration 35 Loglikelihood  -675.1146
-  Iteration 36 Loglikelihood  -675.1144
-  Iteration 37 Loglikelihood  -675.1143
+  Iteration 32 Loglikelihood  -675.1154
+  Iteration 33 Loglikelihood  -675.1152
+  Iteration 34 Loglikelihood  -675.1150
+  Iteration 35 Loglikelihood  -675.1148
+  Iteration 36 Loglikelihood  -675.1146
+  Iteration 37 Loglikelihood  -675.1144
+  Iteration 38 Loglikelihood  -675.1143
   Converged!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ```
@@ -318,8 +319,7 @@ title(hcb,'log_{10}(PGA)','fontsize',6);
 
 ```
 %Make predictions on grid points and set the base to '10'
-z_hat_exp_delog=prediction(y_event,x_event,u_event,w_event,v_event,estimates_exp,'Exp','10');
-
+z_hat_exp_delog=prediction(y_event,x_event,u_event,w_event,v_event,output_real,@design,'Exp','10');
 %Draw the shakemap with log-scaled (1) color bar
 lim=[min(z_hat_exp_delog),max(z_hat_exp_delog)];
 f=shakemap(latRange,lonRang,Italyborder,w_event,v_event,z_hat_exp_delog,1,lim);
