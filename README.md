@@ -59,16 +59,16 @@ This example illustrates a step-by-step instruction on how to use the Scoring es
 
 <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;(b_4&plus;b_5\,M_i)\log_{10}\sqrt{R_{ij}^2&plus;b_6^2}&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
 
-proposed by Akkar and Bommer (2010) in the following form:
+  proposed by Akkar and Bommer (2010) in the following form:
 
 <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;b_4(\log_{10}\sqrt{R_{ij}^2&plus;b_6^2})&plus;b_5(\,M_i\log_{10}\sqrt{R_{ij}^2&plus;b_6^2})&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
 
-which agrees with the general form presented in the first section. We then need to define two functions:
+  which agrees with the general form presented in General Info section. We then need to define two functions:
 
   - Function 1: a matrix-valued function that outputs the design matrix of linear coefficients. For this example, this function is coded as `design.m`;
-  - Function 2: a matrix-valued function that outputs the grident of the design matrix wrt to the nonlinear coefficients. For this example, this function is coded as `Bg.m`.
+  - Function 2: a function that outputs a cell, in which each element contains the grident of the design matrix wrt to ach nonlinear coefficient in the mean function of the GMPE. For this example, this function is coded as `Bg.m`.
  
-  Users only need to change this two functions to accommodate their own GMPE mean function form. More details on how to code these two functions can be found in the comments of `design.m` and `Bg.m`. 
+  > Note: Users only need to change these two functions to accommodate their own GMPE mean function form. More details on how to construct these two functions can be found in the comments of `design.m` and `Bg.m`. 
 
   Now we load and assign data required for the estimation.
 
@@ -98,13 +98,15 @@ cf='Exp';
 %para(1:10) correspond to b, para(11) and para(12) correspond to tau and sigma, respectively
 load('Akkar2010.mat')
 para=Akkar2010; 
-
+beta=[para(1:5),para(7:10)]';
+gamma=para(6);
 %Assign a value to the range parameter h in the exponential correlation function
 h=11.5; 
+theta=[para(11)^2;para(12)^2;h];
 
 %Generate one set of log(IM) (i.e., log(PGA))
 n=1;
-y=generator(x,w,id,para,h,n,cf);
+y=generator(x,w,id,beta,gamma,theta,@design,n,cf);
 ```
 
 * **Step 3 - Estimation** 
@@ -117,7 +119,6 @@ gamma0=para(6)-1;
 
 %Set initial values for the inter- and intraevent variances and the range parameter h
 theta0=[para(11)^2-0.001,para(12)^2-0.01,h-2]';
-initial0=[gamma0;theta0];
 
 %In this example, we perturb the parameter values used to generate synthetic data as the initial values for the estimation
 
@@ -128,7 +129,7 @@ tol=0.0001;
 cl=95;
 
 %Begin the estimation
-[info,l,estimates,se,ci]=scoring(y,x,w,id,initial0,tol,cl,cf);
+output_syn=scoring(y,x,w,id,@design,@Bg,gamma0,theta0,tol,cl,cf);
 
 %%%%%%%%%%%%COMMAND WINDOW OUTPUTS%%%%%%%%%%%%
   Iteration 0 Loglikelihood   107.7564
@@ -144,13 +145,13 @@ Note: your outputs will differ from the above depending on your synthetic data.
 
 * **Step 4 - Extraction of results** 
 
-  The estimation results can be extracted from the following four variables:
+  The estimation results can be extracted from the `output_syn` variable:
 
-  - ```info```: the AIC and BIC values;
-  - ```l```: the log-likelihood value at convergence;
-  - ```estimates```: the estimates of all model parameters;
-  - ```se```: the asymptotic standard error estimates of ML estimators of model parameters;
-  - ```ci```: the confidence intervals (95% in this example) of all model parameters.
+  - ```InformationCriteria```: the AIC and BIC values;
+  - ```LogLikelihood```: the log-likelihood value at convergence;
+  - ```ParameterEstimates```: the estimates of all model parameters;
+  - ```StandardError```: the asymptotic standard error estimates of ML estimators of model parameters;
+  - ```ConfidenceInterval```: the confidence intervals (95% in this example) of all model parameters.
 
 ## A real data example
 In this section, we demonstrate in a real data example on how to use the Scoring estimation approach to estimate the GMPE proposed by Akkar and Bommer (2010) with spatial correlation. 
