@@ -9,7 +9,9 @@ The current version of the estimation scripts can be used to estimate a generic 
 
 <img src="https://latex.codecogs.com/svg.latex?\small&space;f(\mathbf{X};\boldsymbol{\beta},\boldsymbol{\gamma})=\beta_0&plus;g_1(\mathbf{X};\boldsymbol{\gamma})\beta_1&plus;g_2(\mathbf{X};\boldsymbol{\gamma})\beta_2&plus;&plus;g_3(\mathbf{X};\boldsymbol{\gamma})\beta_3&plus;\cdots" title="\small f(\mathbf{X};\boldsymbol{\beta},\boldsymbol{\gamma})=\beta_0+g_1(\mathbf{X};\boldsymbol{\gamma})\beta_1+g_2(\mathbf{X};\boldsymbol{\gamma})\beta_2++g_3(\mathbf{X};\boldsymbol{\gamma})\beta_3+\cdots" />
 
-and the intra-event correlation is represented by one of the following four correlation functions:
+where &beta;<sub>1</sub>, &beta;<sub>2</sub>, &beta;<sub>3</sub>,... are linear coefficients in the mean function of a GMPE and g<sub>1</sub>( &middot; &semi; &middot; ), g<sub>2</sub>( &middot; &semi; &middot; ), g<sub>2</sub>( &middot; &semi; &middot; ),... are basis functions of input data <B>X</B> and nonlinear coefficients <B>&gamma;</B> in the mean function of a GMPE. 
+
+The intra-event correlation can be represented by one of the following four correlation functions:
 
 * No spatial correlation:
 
@@ -63,10 +65,10 @@ This example illustrates a step-by-step instruction on how to use the Scoring es
 
 <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;b_4(\log_{10}\sqrt{R_{ij}^2&plus;b_6^2})&plus;b_5(\,M_i\log_{10}\sqrt{R_{ij}^2&plus;b_6^2})&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
 
-  which agrees with the general form presented in General Info section. We then need to define two functions:
+  which agrees with the general form presented in [General Info](#general-info) section. We then need to define two functions:
 
   - Function 1: a matrix-valued function that outputs the design matrix of linear coefficients. For this example, this function is coded as `design.m`;
-  - Function 2: a function that outputs a cell, in which each element contains the grident of the design matrix wrt to ach nonlinear coefficient in the mean function of the GMPE. For this example, this function is coded as `Bg.m`.
+  - Function 2: a function that outputs a cell, in which each element contains a matrix (same dimension as the design matrix) of gridents (i.e., first order derivatives) of the design matrix wrt to each nonlinear coefficient in the mean function of the GMPE. For this example, this function is coded as `Bg.m`.
  
   > Note: Users only need to change these two functions to accommodate their own GMPE mean function form. More details on how to construct these two functions can be found in the comments of `design.m` and `Bg.m`. 
 
@@ -189,7 +191,6 @@ gamma0=para(6);
 
 %Set initial values for the inter- and intraevent variances as given by Akkar and Bommer (2010)
 theta0=[para(11)^2,para(12)^2]';
-initial0=[gamma0;theta0];
 
 %Set the tolerance level for the optimization algorithm
 tol=0.0001;
@@ -198,7 +199,7 @@ tol=0.0001;
 cl=95;
 
 %Begin the estimation
-[info,l,estimates,se,ci]=scoring(y,x,w,id,initial0,tol,cl,cf);
+output_ini=scoring(y,x,w,id,@design,@Bg,gamma0,theta0,tol,cl,cf);
 
 %%%%%%%%%%%%COMMAND WINDOW OUTPUTS%%%%%%%%%%%%
   Iteration 0 Loglikelihood  -877.7142
