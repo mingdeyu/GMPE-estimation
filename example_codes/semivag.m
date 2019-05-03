@@ -1,3 +1,4 @@
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %This program is free software: you can redistribute it and/or modify
 %it under the terms of the GNU General Public License as published by
@@ -5,7 +6,7 @@
 %(at your option) any later version.
 %
 %Copyright (C): Deyu MING
-%Date: 5 Feb. 2019
+%Date: 3 May 2019
 %Affiliation: Dept of Statistical Science at University College London
 %Email: deyu.ming.16@ucl.ac.uk
 %
@@ -14,7 +15,7 @@
 % spatial correlation. BSSA, 2019.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [varcomponents,semivar]=semivag(y,x,w,id,estimates,h0,deltah,cf)
+function [varcomponents,semivar]=semivag(y,x,w,id,output,g,h0,deltah,cf)
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function draws the empirical semivarigram and the corresponding
 % theorical semivariogram. It also estimate the range parameter h in 
@@ -29,9 +30,12 @@ function [varcomponents,semivar]=semivag(y,x,w,id,estimates,h0,deltah,cf)
 % 
 % id: a vector containing the IDs of earthquakes; 
 %
-% estimates: the estimates of parameters produced from the GMPE ignoring
+% output: the output structure produced from the scoring.m for the GMPE ignoring
 % the spatial correlation;
 % 
+% g: a function handle of the user-defined design matrix function for the
+% linear coefficients;
+%
 % h0: the initial value of h;
 % 
 % deltah: the seperating distance binwidth
@@ -53,10 +57,11 @@ function [varcomponents,semivar]=semivag(y,x,w,id,estimates,h0,deltah,cf)
 % Note: Following Jayaram and Baker (2009), the empirical semivariograms
 % with d>100km are excluded. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-b=estimates(1:10);
-varp0=[estimates(12);h0];
+beta=output.ParameterEstimates.beta;
+gamma=output.ParaEstimates.gamma;
+varp0=[output.ParaEstimates.theta(2);h0];
 % Compute total residuals 
-res=y-mf(x,b);
+res=y-g(x,gamma)*beta;
 % Group data based on earthquake event
 [g, event]=findgroups(id);
 % Count the station number for each event
@@ -144,7 +149,7 @@ end
         legend({'Empirical semivariogram','Squared exponential type'},'Location',...
             'southeast','FontSize',14)
     case 'Matern1.5'
-        legend({'Empirical semivariogram','Matérn type with \nu=1.5'},'Location',...
+        legend({'Empirical semivariogram','MatÃ©rn type with \nu=1.5'},'Location',...
             'southeast','FontSize',14)
     end
     
@@ -175,11 +180,4 @@ for r=1:nr
     G2=linspace(x_min(2)-int_length/2,x_min(2)+int_length/2,m1);
 end
         
-end
-
-
-function f=mf(x,b)
-%This function gives the value of the mean function
-f=b(1)+b(2).*x(:,1)+b(3).*x(:,1).^2+0.5*(b(4)+b(5).*x(:,1)).*log10(x(:,2).^2+b(6)^2)...
-    +b(7).*x(:,3)+b(8).*x(:,4)+b(9).*x(:,5)+b(10).*x(:,6);
 end
