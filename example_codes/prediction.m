@@ -5,7 +5,7 @@
 %(at your option) any later version.
 %
 %Copyright (C): Deyu MING
-%Date: 5 Feb. 2019
+%Date: 3 May 2019
 %Affiliation: Dept of Statistical Science at University College London
 %Email: deyu.ming.16@ucl.ac.uk
 %
@@ -14,7 +14,7 @@
 % spatial correlation. BSSA, 2019.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function z_hat=prediction(y_event,x_event,u_event,w_event,v_event,estimates,cf,base)
+function z_hat=prediction(y_event,x_event,u_event,w_event,v_event,output,g,cf,base)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %This function computes the linear predictions at grid points given the
 %observations at stations during a specific event and the estimated
@@ -33,7 +33,10 @@ function z_hat=prediction(y_event,x_event,u_event,w_event,v_event,estimates,cf,b
 % v_event: the coordinates (latitude and longtitude) of grid points in
 % considered event;
 %
-% estimates: the estimates produced by the Scoring estimation approach;
+% output: the output structure produced by the Scoring estimation approach;
+%
+% g: a function handle of the user-defined design matrix function for the
+% linear coefficients;
 %
 % cf: the type of the covariance function: currently support no spatial correlation
 % ('No'), exponential type ('Exp'), Matern type with v=1.5 ('Matern1.5') 
@@ -47,16 +50,13 @@ function z_hat=prediction(y_event,x_event,u_event,w_event,v_event,estimates,cf,b
 % z_hat: predictions at grid points in the event under the consideration
 % given the observations at stations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-b=estimates(1:10);
-theta=estimates(11:end);
-%compute the means at stations in the considered event given estimates of b 
-fx_event=b(1)+b(2).*x_event(:,1)+b(3).*x_event(:,1).^2+0.5*(b(4)+...
-    b(5).*x_event(:,1)).*log10(x_event(:,2).^2+b(6)^2)+b(7).*x_event(:,3)+...
-    b(8).*x_event(:,4)+b(9).*x_event(:,5)+b(10).*x_event(:,6);
+beta=output.ParameterEstimates.beta;
+gamma=output.ParaEstimates.gamma;
+theta=output.ParaEstimates.theta;
+%compute the means at stations in the considered event given estimates of b
+fx_event=g(x_event,gamma)*beta;
 %compute the means at grid points in the considered event given estimates of b   
-fu_event=b(1)+b(2).*u_event(:,1)+b(3).*u_event(:,1).^2+0.5*(b(4)+...
-    b(5).*u_event(:,1)).*log10(u_event(:,2).^2+b(6)^2)+b(7).*u_event(:,3)+...
-    b(8).*u_event(:,4)+b(9).*u_event(:,5)+b(10).*u_event(:,6);
+fu_event=g(u_event,gamma)*beta;
 %compute the matrix of Euclidean distances among grid points and stations in 
 %event under the consideration
 c=sep(w_event,v_event);
