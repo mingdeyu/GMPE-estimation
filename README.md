@@ -239,10 +239,10 @@ deltah=0.5;
 
 ```
 %Set initial value for the nonlinear coefficient b_6 as the one estimated from Step 1 
-gamma0=output_ini.ParamaterEstimates.gamma;
+gamma0=output_ini.ParameterEstimates.gamma;
 
 %Set initial value for the interevent variance tau^2 as the one estimated from Step 1
-tau20=output_ini.ParamaterEstimates.theta(1);
+tau20=output_ini.ParameterEstimates.theta(1);
 
 %Set initial values for the intraevent variance sigma^2 and the range parameter h as the ones estimated from Step 2
 sigma20_exp=varcomponents_exp(1);
