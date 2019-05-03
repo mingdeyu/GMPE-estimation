@@ -51,8 +51,8 @@ function z_hat=prediction(y_event,x_event,u_event,w_event,v_event,output,g,cf,ba
 % given the observations at stations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 beta=output.ParameterEstimates.beta;
-gamma=output.ParaEstimates.gamma;
-theta=output.ParaEstimates.theta;
+gamma=output.ParameterEstimates.gamma;
+theta=output.ParameterEstimates.theta;
 %compute the means at stations in the considered event given estimates of b
 fx_event=g(x_event,gamma)*beta;
 %compute the means at grid points in the considered event given estimates of b   
