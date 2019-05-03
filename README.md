@@ -48,8 +48,10 @@ The repository currently contains the following items:
 ## Update log
 
 **02.05.2019**
-* `generator.m`: inputs are changed to be consistent with those of `scoring.m`;
+* `generator.m`: inputs are changed to be consistent with those of the updated `scoring.m`;
+* `prediction.m`: inputs are changed to be consistent with those of the updated `scoring.m`;
 * `scoring.m`: inputs are changed so a generic GMPE can be implemented. The outputs are now stored in a single structure format;
+* `semivag.m`: inputs are changed to be consistent with those of of the updated `scoring.m`;
 * `Bg.m` and `design.m` are added.
 
 ## A synthetic example
@@ -225,7 +227,7 @@ h0=40;
 deltah=0.5;
 
 %Plot empirical semivariogram with the fitted exponential semivariograms
-[varcomponents_exp,semivar]=semivag(y,x,w,id,estimates,h0,deltah,'Exp');
+[varcomponents_exp,semivar]=semivag(y,x,w,id,output_ini,@design,h0,deltah,'Exp');
 ```
   This will produce the following figure:
 
@@ -246,11 +248,12 @@ tau20=estimates(11);
 sigma20_exp=varcomponents_exp(1);
 h0_exp=varcomponents_exp(2);
 
-%Combine initial values into one vector
-initial0_exp=[gamma0;tau20;sigma20_exp;h0_exp];
+%Combine initial values
+gamma0_exp=gamma0;
+theta0_exp=[tau20;sigma20_exp;h0_exp];
 
 %Begin estimation
-[info_exp,ll_exp,estimates_exp,se_exp,ci_exp]=scoring(y,x,w,id,initial0_exp,tol,cl,'Exp');
+output_real=scoring(y,x,w,id,@design,@Bg,gamma0_exp,theta0_exp,tol,cl,'Exp');
 
 %%%%%%%%%%%%COMMAND WINDOW OUTPUTS%%%%%%%%%%%%
       .             .             .
@@ -290,7 +293,7 @@ u_event=[grid_data.Mw,grid_data.JB_dist,grid_data.Ss,grid_data.Sa,grid_data.Fn,g
 v_event=[grid_data.st_latitude,grid_data.st_longitude];
 
 %Make predictions on grid points
-z_hat_exp=prediction(y_event,x_event,u_event,w_event,v_event,estimates_exp,'Exp','off');
+z_hat_exp=prediction(y_event,x_event,u_event,w_event,v_event,output_real,@design,'Exp','off');
 
 %load event map info
 load('Italyborder.mat')
