@@ -5,7 +5,7 @@
 %(at your option) any later version.
 %
 %Copyright (C): Deyu MING
-%Date: 5 Feb. 2019
+%Date: 3 May 2019
 %Affiliation: Dept of Statistical Science at University College London
 %Email: deyu.ming.16@ucl.ac.uk
 %
@@ -14,15 +14,12 @@
 % spatial correlation. BSSA, 2019.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [info,ll,estimates,se,ci]=scoring(y,x,w,id,initial0,tol,cl,cf)
+function Output=scoring(y,x,w,id,f1,f2,gamma0,theta0,tol,cl,cf)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%This function computes the estimates of GM model:
-%
-%f(X_ij)=b_1+b_2*M_i+b_3*(M_i)^2+(b_4+b_5*M_i)*log10[sqrt((R_ij)^2+(b_6)^2)]...
-%+b_7*Ss_ij+b_8*Sa_ij+b_9*Fn_i+b_10*Fr_i
-%
-%with stationary and isotropic correlation functions by the method of Scoring
-%with dimension reduction.
+% This function computes the estimates of user-defined GM model
+% with stationary and isotropic correlation functions by the method of Scoring
+% with dimension reduction. See https://github.com/mingdeyu/GMPE-estimation
+% for examples on how to specify the inputs. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INPUTS:
 % y: the logarithmic intensity measures;
@@ -33,8 +30,16 @@ function [info,ll,estimates,se,ci]=scoring(y,x,w,id,initial0,tol,cl,cf)
 %
 % id: a vector containing the IDs of earthquakes;
 %
-% initial0=(b6; \tau^2; \sigma^2; h): initial values for nonlinear 
-% coefficient b_6 in the GM prediction function, inter- and intraevent variances 
+% f1: a function handle that uses x and nonlinear coefficients gamma as input and
+% outputs the design matrix B of linear coefficients;
+%
+% f2: a function handle that uses x and nonlinear coefficients gamma as input and
+% ouputs a cell, each element of which contains the grident of the design
+% matrix B wrt to one nonlinear coefficient in gamma;
+%
+% gamma0: initial values for nonlinear coefficients in the GM prediction function;
+%
+% theta0=(\tau^2; \sigma^2; h): initial values for inter- and intraevent variances 
 % \tau^2 and \sigma^2, and range paramter h in the correlation function;
 %
 % tol: the tolerance level set by the user;
@@ -47,27 +52,30 @@ function [info,ll,estimates,se,ci]=scoring(y,x,w,id,initial0,tol,cl,cf)
 % and 'squared exponential' type (SExp).
 %
 % OUTPUTS:
-% info: a table array contain the AIC and BIC;
+% An output structure which contains:
 %
-% ll: the maximum log-likelihood value;
+% LogLikelihood: the maximum log-likelihood value;
 %
-% estimates: the maximum likelihood estimates of model paramters;
+% ParameterEstimates: the maximum likelihood estimates of model paramters
+% beta, gamma and theta;
 %
-% se: the asympototic standard error estimates of the maximum likelihood
+% StandardError: the asympototic standard error estimates of the maximum likelihood
 % estimators;
 %
-% ci: the cl% confidence intervals for model parameters.
+% ConfidenceInterval: the cl% confidence intervals for model parameters;
+%
+% InformationCriteria: a structure array containing the AIC and BIC.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %initialisation
 stopping=1;
 it=0;
-gamma=initial0(1);
+gamma=gamma0;
 %Transform the theta by theta=exp(theta_trans) so convert constraint to
 %unconstraint problem
-theta_trans=log(initial0(2:end));
+theta_trans=log(theta0);
 %Compute the initial design matrix of \beta
-B=design(x,gamma);
+B=f1(x,gamma);
 %Compute the initial covariance matrix and its determinant
 c=sepdis(w,id); %compute the matrix of separation distances for each event
 
@@ -101,7 +109,7 @@ theta_trans_old=theta_trans;
 gamma_old=gamma;
 ll_old=ll;
 %Compute additional elements in the gradients and information matrix
-A1=BgBeta(x,gamma,beta); %B_\gamma*\beta
+A1=f2(x,gamma); %B_\gamma
 
 switch cf
     case 'No'
@@ -117,10 +125,11 @@ end
 A3=(y-B*beta);
 %Compute gradients
 St=Stheta(Omega,A2,A3);
-Sg=A1'/Omega*A3;
+Sg=Sgamma(Omega,A1,A3,beta);
+
 %Compute information matrices
-Igg=(A1)'/Omega*A1;
-Igb=A1'/Omega*B;
+Igg=Igamma(Omega,A1,beta);
+Igb=Igammabeta(Omega,A1,B,beta);
 Ibb=B'/Omega*B;
 Itt=Itheta(Omega,A2);
 %Step halving to gurantee the increase if the log-likelihood function
@@ -166,20 +175,33 @@ disp('Converged!')
 %Arrange the results to obtain estimates of of estimators of (beta, gamma and theta_trans)
 %(first cell) and (beta, gamma and theta) (second cell).
 estimates_all=est(beta, gamma, theta_trans);
-estimates=estimates_all{2};
-
+estimates(1).beta=estimates_all{2}(1:length(beta));
+estimates(1).gamma=estimates_all{2}(length(beta)+1:length(beta)+length(gamma));
+estimates(1).theta=estimates_all{2}(end-2:end);
 %Compute asymptotic standard error estimates of estimators of (beta, gamma and
 %theta_trans) (first cell) and (beta, gamma and theta) (second cell)
 se_all=sefct(Igg,Igb,Ibb,Itt,theta_trans);
-se=se_all{2};
+se(1).beta=se_all{2}(1:length(beta));
+se(1).gamma=se_all{2}(length(beta)+1:length(beta)+length(gamma));
+se(1).theta=se_all{2}(end-2:end);
 %Compute the cl% confidence interval for (beta, gamma and theta_trans)
 %(first cell) and (beta, gamma and theta) (second cell)
 ci_all=CI(estimates_all{1},se_all{1},cl);
-ci=ci_all{2};
+ci(1).beta=ci_all{2}(1:length(beta),:);
+ci(1).gamma=ci_all{2}(length(beta)+1:length(beta)+length(gamma),:);
+ci(1).theta=ci_all{2}(end-2:end,:);
 %Compute AIC and BIC
-AIC=-2*ll+2*length(estimates);
-BIC=-2*ll+length(estimates)*log(length(y));
-info=table(AIC,BIC);
+AIC=-2*ll+2*length(estimates_all{2});
+BIC=-2*ll+length(estimates_all{2})*log(length(y));
+info.AIC=AIC;
+info.BIC=BIC;
+%Final output
+Output(1).LogLikelihood=ll;
+Output(1).ParameterEstimates=estimates;
+Output(1).StandardError=se;
+Output(1).ConfidenceInterval=ci;
+Output(1).InformationCriteria=info;
+
 end
 
 function c=sepdis(position,id)
@@ -206,14 +228,6 @@ pairdis=deg2km(distance(X1(:,1),X1(:,2),X1(:,3),X1(:,4)));
 subdis=vec2mat(pairdis, m);
 c{1,j}=subdis;
 end
-end
-
-function B=design(x,gamma)
-%This function gives the design matrix of \beta, the linear coefficients in
-%the mean function.
-n=size(x,1);
-B=[ones(n,1), x(:,1), x(:,1).^2, 0.5*log10(x(:,2).^2+gamma^2),...
-   0.5*x(:,1).*log10(x(:,2).^2+gamma^2), x(:,3), x(:,4), x(:,5), x(:,6)];
 end
 
 function Omega=CovNo(theta_trans,c)
@@ -300,14 +314,6 @@ for i=1:n
 d=d+logdet(exp(theta_trans(1))+exp(theta_trans(2)-sqrt(3).*c{i}.*exp(-theta_trans(3)))...
     .*(1.+sqrt(3).*c{i}.*exp(-theta_trans(3))),'chol');
 end
-end
-
-function A=BgBeta(x,gamma,beta)
-%This function computes the element B_{\gamma}*\beta
-M=zeros(size(x,1),2);
-M(:,1)=gamma/log(10)./(x(:,2).^2+gamma^2);
-M(:,2)=gamma/log(10).*x(:,1)./(x(:,2).^2+gamma^2);
-A=M*beta(4:5);
 end
 
 function A=CtNo(theta_trans,c)
@@ -423,6 +429,16 @@ A{2}=C2;
 A{3}=C3;
 end
 
+function s=Sgamma(Omega,A1,A3,beta)
+%This function computes the gradients of log-likelihood function wrt
+%gamma.
+n=length(A1);
+s=zeros(n,1);
+for i=1:n
+s(i,1)=(A1{i}*beta)'/Omega*A3;
+end
+end
+
 function s=Stheta(Omega,A2,A3)
 %This function computes the gradients of log-likelihood function wrt
 %theta.
@@ -431,6 +447,33 @@ s=zeros(n,1);
 for i=1:n
 s(i,1)=-0.5*trace(Omega\A2{1,i}*(eye(size(Omega,1))-Omega\(A3*A3')));
 end
+end
+
+function I=Igamma(Omega,A1,beta)
+%This function computes the expected information matrix of log-likelihood
+%function wrt gamma
+n=length(A1);
+I=zeros(n,n);
+
+for i=1:n
+    for j=1:n
+I(i,j)=(A1{i}*beta)'/Omega*(A1{j}*beta);
+    end
+end
+
+end
+
+function I=Igammabeta(Omega,A1,B,beta)
+%This function computes the expected information matrix of log-likelihood
+%function wrt gamma and beta
+n1=length(A1);
+n2=length(beta);
+I=zeros(n1,n2);
+
+for i=1:n1
+I(i,:)=(A1{i}*beta)'/Omega*B;
+end
+
 end
 
 function I=Itheta(Omega,A2)
@@ -519,9 +562,9 @@ end
 
 function estimates=est(beta, gamma, theta_trans)
 
-estimates{1}=[beta(1:5)',gamma,beta(6:9)',theta_trans']';
+estimates{1}=[beta',gamma',theta_trans']';
 theta=exp(theta_trans);
-estimates{2}=[beta(1:5)',gamma,beta(6:9)',theta']';
+estimates{2}=[beta',gamma',theta']';
 
 
 end
@@ -539,10 +582,10 @@ else
     SEt=sqrt(diag(inv(Itt)));
 end
 %asymptotic standard error estimates of (beta, gamma, theta_trans)
-se{1}=[SEb(1:5);SEg;SEb(6:9);SEt];
+se{1}=[SEb;SEg;SEt];
 %asymptotic standard error estimates of (beta, gamma, theta) by Delta
 %method
-se{2}=[SEb(1:5);SEg;SEb(6:9);SEt.*exp(trans_theta)];
+se{2}=[SEb;SEg;SEt.*exp(trans_theta)];
 end
 
 function ci=CI(estimates,se,cl)
