@@ -5,11 +5,11 @@ This repository provides the MATLAB scripts used to estimate ground-motion predi
 > [Ming, D., Huang, C., Peters, G.W., and Galasso, C. An advanced estimation algorithm for ground-motion models with spatial correlation. *Bulletin of the Seismological Society of America*, 2019.](https://pubs.geoscienceworld.org/ssa/bssa/article-abstract/568974/an-advanced-estimation-algorithm-for-ground-motion?redirectedFrom=fulltext)
 
 ## General info
-The current version of the estimation scripts only support the GMPE proposed by [Akkar and Bommer (2010)](https://pubs.geoscienceworld.org/ssa/srl/article-abstract/81/2/195/143661/empirical-equations-for-the-prediction-of-pga-pgv?redirectedFrom=fulltext):
+The current version of the estimation scripts can be used to estimate a generic GMPE as long as the mean function of the GMPE can be written in the following form:
 
-<img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;(b_4&plus;b_5\,M_i)\log_{10}\sqrt{R_{ij}^2&plus;b_6^2}&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
+<img src="https://latex.codecogs.com/svg.latex?\small&space;f(\mathbf{X};\boldsymbol{\beta},\boldsymbol{\gamma})=\beta_0&plus;g_1(\mathbf{X};\boldsymbol{\gamma})\beta_1&plus;g_2(\mathbf{X};\boldsymbol{\gamma})\beta_2&plus;&plus;g_3(\mathbf{X};\boldsymbol{\gamma})\beta_3&plus;\cdots" title="\small f(\mathbf{X};\boldsymbol{\beta},\boldsymbol{\gamma})=\beta_0+g_1(\mathbf{X};\boldsymbol{\gamma})\beta_1+g_2(\mathbf{X};\boldsymbol{\gamma})\beta_2++g_3(\mathbf{X};\boldsymbol{\gamma})\beta_3+\cdots" />
 
-and four correlation functions:
+and the intra-event correlation is represented by one of the following four correlation functions:
 
 * No spatial correlation:
 
@@ -27,14 +27,13 @@ and four correlation functions:
 
   <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;k(d)=\exp\left(-\frac{d^{2}}{2h^2}\right)&space;\end{align*}" title="\small \begin{align*} k(d)=\exp\left(-\frac{d^{2}}{2h^2}\right) \end{align*}" />
 
-## Notes
-The scripts can be easily extended to accommodate other forms of ground-motion prediction functions and correlation functions. If you would like to use the scripts on your own GMPE, please contact us and we are happy to help incorporate your GMPE into the scripts.
-
 ## Contents
 The repository currently contains the following items:
 
 * `Akkar2010.mat`: the MATLAB data file that contains the model parameter estimates of <b>b</b>, &tau; and &sigma; given by [Akkar and Bommer (2010)](https://pubs.geoscienceworld.org/ssa/srl/article-abstract/81/2/195/143661/empirical-equations-for-the-prediction-of-pga-pgv?redirectedFrom=fulltext);
+* `Bg.m`: the MATLAB function that computes the grident of design matrix wrt nonlinear coefficients in the ground-motion prediction function of Akkar and Bommer (2010);
 * `data.mat`: the MATLAB data file that contains an example of ground-motion records as the inputs to ```scoring.m```; 
+* `design.m`: the MATLAB function that gives the design matrix of the linear coefficients in the ground-motion prediction function of Akkar and Bommer (2010);
 * `eventfinder.m`: the MATLAB function that extracts information of a specified event from the ground-motion database;
 * `generator.m`: the MATLAB function that generates synthetic logarithmic intensity measures (IM).
 * `grid_data.mat`: the MATLAB data file that contains the covariate information at prediction locations;
@@ -44,12 +43,34 @@ The repository currently contains the following items:
 * `semivag.m`: the MATLAB function that plots the empirical semivariogram together with the fitted theoretical semivariogram models;
 * `shakemap.m`: the MATLAB function that draws the shake map based on the produced predictions.
 
+## Update log
+
+**02.05.2019**
+* `generator.m`: inputs are changed to be consistent with those of `scoring.m`;
+* `scoring.m`: inputs are changed so a generic GMPE can be implemented. The outputs are now stored in a single structure format;
+* `Bg.m` and `design.m` are added.
+
 ## A synthetic example
-This example illustrates a step-by-step instruction on how to use the Scoring estimation approach to estimate a GMPE with spatial correlation based on a synthetic dataset of logarithmic PGA. 
+This example illustrates a step-by-step instruction on how to use the Scoring estimation approach to estimate a GMPE of Akkar and Bommer (2010) with exponential spatial correlation function based on a synthetic dataset of logarithmic PGA. 
 
 * **Step 1 - Data preparation** 
 
-  In this step, we load and assign data required for the estimation.
+  We first rewrite the mean function of the GMPE:
+
+<img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;(b_4&plus;b_5\,M_i)\log_{10}\sqrt{R_{ij}^2&plus;b_6^2}&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
+
+proposed by Akkar and Bommer (2010) in the following form:
+
+<img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;b_4(\log_{10}\sqrt{R_{ij}^2&plus;b_6^2})&plus;b_5(\,M_i\log_{10}\sqrt{R_{ij}^2&plus;b_6^2})&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
+
+which agrees with the general form presented in the first section. We then need to define two functions:
+
+  - Function 1: a matrix-valued function that outputs the design matrix of linear coefficients. For this example, this function is coded as `design.m`;
+  - Function 2: a matrix-valued function that outputs the grident of the design matrix wrt to the nonlinear coefficients. For this example, this function is coded as `Bg.m`.
+ 
+  Users only need to change this two functions to accommodate their own GMPE mean function form. More details on how to code these two functions can be found in the comments of `design.m` and `Bg.m`. 
+
+  Now we load and assign data required for the estimation.
 
 ```
 %load data
