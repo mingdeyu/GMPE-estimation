@@ -59,15 +59,11 @@ This example illustrates a step-by-step instruction on how to use the Scoring es
 
 * **Step 1 - Data preparation** 
 
-  We first rewrite the mean function of the GMPE:
+  The GMPE proposed by Akkar and Bommer (2010) is given by:
 
 <img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;(b_4&plus;b_5\,M_i)\log_{10}\sqrt{R_{ij}^2&plus;b_6^2}&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
 
-  proposed by Akkar and Bommer (2010) in the following form:
-
-<img src="https://latex.codecogs.com/svg.latex?\small&space;\begin{align*}&space;f(\mathbf{b})=b_1&plus;b_2\,M_i&plus;b_3\,M_i^{2}&plus;b_4(\log_{10}\sqrt{R_{ij}^2&plus;b_6^2})&plus;b_5(\,M_i\log_{10}\sqrt{R_{ij}^2&plus;b_6^2})&plus;b_7\,S_{S,ij}&plus;b_8\,S_{A,ij}&plus;b_9\,F_{N,i}&plus;b_{10}\,F_{R,i}\,&space;\end{align*}" title="\small \begin{align*} f(\mathbf{b})=b_1+b_2\,M_i+b_3\,M_i^{2}+(b_4+b_5\,M_i)\log\sqrt{R_{ij}^2+b_6^2}+b_7\,S_{S,ij}+b_8\,S_{A,ij}+b_9\,F_{N,i}+b_{10}\,F_{R,i}\, \end{align*}" />
-
-  which agrees with the general form presented in [General Info](#general-info) section. We then need to define two functions:
+  which can be written in the general form presented in [General Info](#general-info) section. We then need to define two functions:
 
   - Function 1: a matrix-valued function that outputs the design matrix of linear coefficients. For this example, this function is coded as `design.m`;
   - Function 2: a function that outputs a cell, in which each element contains a matrix (same dimension as the design matrix) of gridents (i.e., first order derivatives) of the design matrix wrt to each nonlinear coefficient in the mean function of the GMPE. For this example, this function is coded as `Bg.m`.
