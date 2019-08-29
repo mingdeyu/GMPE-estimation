@@ -4,6 +4,8 @@ This repository provides the MATLAB scripts used to estimate ground-motion predi
 
 > [Ming, D., Huang, C., Peters, G.W., and Galasso, C. An advanced estimation algorithm for ground-motion models with spatial correlation. *Bulletin of the Seismological Society of America*, 2019.](https://pubs.geoscienceworld.org/ssa/bssa/article-abstract/568974/an-advanced-estimation-algorithm-for-ground-motion?redirectedFrom=fulltext)
 
+This algorithm provides uncertainty quantifications (in terms of asympototic standard deviation) of all model parameters including the range parameter (i.e., lengthscale) in the correlation function. This feature of the algorithm is particularly advantageous because the computed measurement of uncertainty can also be used to check statistical significance and improve model specification.
+
 ## General info
 The current version of the estimation scripts can be used to estimate a generic GMPE as long as the mean function of the GMPE can be written in the following form:
 
