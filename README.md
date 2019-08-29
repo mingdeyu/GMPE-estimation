@@ -9,7 +9,7 @@ This algorithm provides uncertainty quantifications (in terms of asympototic sta
 ## General info
 The current version of the estimation scripts can be used to estimate a generic GMPE as long as the mean function of the GMPE can be written in the following form:
 
-<img src="https://latex.codecogs.com/svg.latex?\small&space;f(\mathbf{X};\boldsymbol{\beta},\boldsymbol{\gamma})=\beta_0&plus;g_1(\mathbf{X};\boldsymbol{\gamma})\beta_1&plus;g_2(\mathbf{X};\boldsymbol{\gamma})\beta_2&plus;&plus;g_3(\mathbf{X};\boldsymbol{\gamma})\beta_3&plus;\cdots" title="\small f(\mathbf{X};\boldsymbol{\beta},\boldsymbol{\gamma})=\beta_0+g_1(\mathbf{X};\boldsymbol{\gamma})\beta_1+g_2(\mathbf{X};\boldsymbol{\gamma})\beta_2++g_3(\mathbf{X};\boldsymbol{\gamma})\beta_3+\cdots" />
+<img src="https://latex.codecogs.com/svg.latex?\small&space;f(\mathbf{X};\boldsymbol{\beta},\boldsymbol{\gamma})=\beta_0&plus;g_1(\mathbf{X};\boldsymbol{\gamma})\beta_1&plus;g_2(\mathbf{X};\boldsymbol{\gamma})\beta_2&plus;g_3(\mathbf{X};\boldsymbol{\gamma})\beta_3&plus;\cdots" title="\small f(\mathbf{X};\boldsymbol{\beta},\boldsymbol{\gamma})=\beta_0+g_1(\mathbf{X};\boldsymbol{\gamma})\beta_1+g_2(\mathbf{X};\boldsymbol{\gamma})\beta_2+g_3(\mathbf{X};\boldsymbol{\gamma})\beta_3+\cdots" />
 
 where &beta;<sub>1</sub>, &beta;<sub>2</sub>, &beta;<sub>3</sub>,... are linear coefficients in the mean function of a GMPE, and g<sub>1</sub>( &middot; &semi; &middot; ), g<sub>2</sub>( &middot; &semi; &middot; ), g<sub>2</sub>( &middot; &semi; &middot; ),... are basis functions of input data <B>X</B> and nonlinear coefficients <B>&gamma;</B> in the mean function of a GMPE and are first order differentiable wrt nonlinear coefficients <B>&gamma;</B>. 
 
