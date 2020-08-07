@@ -49,6 +49,13 @@ The repository currently contains the following items:
 
 ## Update log
 
+**07.08.2020**
+* `scoring.m`: extra argument `gamma_cstr` is added so user can define which nonlinear coefficients in the mean function of GMPE have positivity constraints; the algorithm can now also estimate GMPE with only linear coefficients in its mean function by setting arguments `gamma0=[]`, `f2=[]`, and `gamma_cstr=[]`;
+* `generator.m`: now can generate synthetic logarithmic intensity measures (IM) for GMPE with only linear coefficients in its mean function by setting argument `gamma=[]`;
+* `semivag.m`: now can plot empirical semivariograms for GMPE with only linear coefficients in its mean function;
+* `prediction.m`: now can make linear predictions for GMPE with only linear coefficients in its mean function. It now also outputs predictive variances at the predictions locations that can be used as uncertainty measurements of predictions made by the estimated GMPE;
+* Various bugs of the algorithm are fixed for cases where there are more than one nonlinear coefficients in the GMPE.  
+
 **02.05.2019**
 * `generator.m`: inputs are changed to be consistent with those of the updated `scoring.m`;
 * `prediction.m`: inputs are changed to be consistent with those of the updated `scoring.m`;
