@@ -14,11 +14,11 @@
 % spatial correlation. BSSA, 2019.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function z_hat=prediction(y_event,x_event,u_event,w_event,v_event,output,g,cf,base)
+function [z_hat,v_hat]=prediction(y_event,x_event,u_event,w_event,v_event,output,g,cf,base)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%This function computes the linear predictions at grid points given the
-%observations at stations during a specific event and the estimated
-%parameters for the model proposed by Akkar and Bommer (2010).
+%This function computes the linear predictions and the associated uncertainties 
+%at grid points given the observations at stations during a specific event 
+%and the estimated parameters for the model proposed by Akkar and Bommer (2010).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INPUTS:
 % y_event: the IM data at stations of the event under the consideration;
@@ -48,10 +48,17 @@ function z_hat=prediction(y_event,x_event,u_event,w_event,v_event,output,g,cf,ba
 %
 % OUTPUT:
 % z_hat: predictions at grid points in the event under the consideration
-% given the observations at stations
+% given the observations at stations;
+%
+% v_hat: uncertainty (i.e. variance) predictions at grid points in the event 
+% under the consideration given the observations at stations.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 beta=output.ParameterEstimates.beta;
-gamma=output.ParameterEstimates.gamma;
+if isfield(output.ParameterEstimates,'gamma')
+    gamma=output.ParameterEstimates.gamma;
+else
+    gamma=[];
+end
 theta=output.ParameterEstimates.theta;
 %compute the means at stations in the considered event given estimates of b
 fx_event=g(x_event,gamma)*beta;
@@ -86,10 +93,13 @@ V=D-Sigma/C*Sigma';
 switch base
     case 'off'
 z_hat=mu;
+v_hat=diag(V);
     case 'exp'
 z_hat=exp(mu+0.5.*diag(V));
+v_hat=exp(2.*mu+diag(V)).*(exp(diag(V))-1);
     case '10'
 z_hat=exp(log(10).*mu+0.5*(log(10))^2.*diag(V));
+v_hat=exp(2*log(10).*mu+(log(10))^2.*diag(V)).*(exp((log(10))^2.*diag(V))-1);
 end
 
 end

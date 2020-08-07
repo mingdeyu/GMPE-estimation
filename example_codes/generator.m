@@ -28,7 +28,7 @@ function y=generator(x,w,id,beta,gamma,theta,g,n,cf)
 % beta: the chosen true values of linear coefficients in the mean function f(X_ij); 
 %
 % gamma: the chosen true values of nonlinear coefficients in the mean 
-% function f(X_ij); 
+% function f(X_ij). Set gamma=[] when there are no nonlinear coefficients;
 %
 % theta: the chosen true values of \tau2, \sigma2, and h;
 %

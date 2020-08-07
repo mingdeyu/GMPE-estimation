@@ -58,7 +58,11 @@ function [varcomponents,semivar]=semivag(y,x,w,id,output,g,h0,deltah,cf)
 % with d>100km are excluded. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 beta=output.ParameterEstimates.beta;
-gamma=output.ParameterEstimates.gamma;
+if isfield(output.ParameterEstimates,'gamma')
+    gamma=output.ParameterEstimates.gamma;
+else
+    gamma=[];
+end
 varp0=[output.ParameterEstimates.theta(2);h0];
 % Compute total residuals 
 res=y-g(x,gamma)*beta;

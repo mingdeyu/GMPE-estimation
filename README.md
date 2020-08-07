@@ -100,8 +100,10 @@ cf='Exp';
 %para(1:10) correspond to b, para(11) and para(12) correspond to tau and sigma, respectively
 load('Akkar2010.mat')
 para=Akkar2010; 
-beta=[para(1:5),para(7:10)]';
-gamma=para(6);
+%linear coefficients
+beta=[para(1:5),para(7:10)]'; 
+%nonlinear coefficients. gamma should be specified as a column vector when there are more than one nonlinear coefficients
+gamma=para(6); 
 %Assign a value to the range parameter h in the exponential correlation function
 h=11.5; 
 theta=[para(11)^2;para(12)^2;h];
@@ -117,6 +119,7 @@ y=generator(x,w,id,beta,gamma,theta,@design,n,cf);
 
 ```
 %Set the initial value for the nonlinear coefficients (b_6 in this example)
+%(gamma0 should be specified as a column vector when there are more than one nonlinear coefficients)
 gamma0=para(6)-1;
 
 %Set initial values for the inter- and intraevent variances and the range parameter h
@@ -130,8 +133,12 @@ tol=0.0001;
 %Set the confidence level (95% in this example) to be used to construct confidence intervals for the parameter estimators
 cl=95;
 
+%Set a binary vector that indicates which nonlinear coefficients have positivity constraints
+%(although b_6 should be positive, it is in quadratic form and thus does not need to be constrained to be positive during the optimisation)
+gamma_cstr=[0];
+
 %Begin the estimation
-output_syn=scoring(y,x,w,id,@design,@Bg,gamma0,theta0,tol,cl,cf);
+output_syn=scoring(y,x,w,id,@design,@Bg,gamma0,theta0,tol,cl,cf,gamma_cstr);
 
 %%%%%%%%%%%%COMMAND WINDOW OUTPUTS%%%%%%%%%%%%
   Iteration 0 Loglikelihood   107.7564
@@ -198,8 +205,12 @@ tol=0.0001;
 %Set the confidence level (95% in this example) to be used to construct confidence intervals for the parameter estimators
 cl=95;
 
+%Set a binary vector that indicates which nonlinear coefficients have positivity constraints
+%(although b_6 should be positive, it is in quadratic form and thus does not need to be constrained to be positive during the optimisation)
+gamma_cstr=[0];
+
 %Begin the estimation
-output_ini=scoring(y,x,w,id,@design,@Bg,gamma0,theta0,tol,cl,cf);
+output_ini=scoring(y,x,w,id,@design,@Bg,gamma0,theta0,tol,cl,cf,gamma_cstr);
 
 %%%%%%%%%%%%COMMAND WINDOW OUTPUTS%%%%%%%%%%%%
   Iteration 0 Loglikelihood  -877.7142
@@ -251,7 +262,7 @@ gamma0_exp=gamma0;
 theta0_exp=[tau20;sigma20_exp;h0_exp];
 
 %Begin estimation
-output_real=scoring(y,x,w,id,@design,@Bg,gamma0_exp,theta0_exp,tol,cl,'Exp');
+output_real=scoring(y,x,w,id,@design,@Bg,gamma0_exp,theta0_exp,tol,cl,'Exp',gamma_cstr);
 
 %%%%%%%%%%%%COMMAND WINDOW OUTPUTS%%%%%%%%%%%%
       .             .             .
@@ -264,6 +275,7 @@ output_real=scoring(y,x,w,id,@design,@Bg,gamma0_exp,theta0_exp,tol,cl,'Exp');
   Iteration 36 Loglikelihood  -675.1146
   Iteration 37 Loglikelihood  -675.1144
   Iteration 38 Loglikelihood  -675.1143
+  Iteration 39 Loglikelihood  -675.1142
   Converged!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ```
@@ -292,7 +304,7 @@ u_event=[grid_data.Mw,grid_data.JB_dist,grid_data.Ss,grid_data.Sa,grid_data.Fn,g
 v_event=[grid_data.st_latitude,grid_data.st_longitude];
 
 %Make predictions on grid points
-z_hat_exp=prediction(y_event,x_event,u_event,w_event,v_event,output_real,@design,'Exp','off');
+[z_hat_exp,v_hat_exp]=prediction(y_event,x_event,u_event,w_event,v_event,output_real,@design,'Exp','off');
 
 %load event map info
 load('Italyborder.mat')
@@ -317,7 +329,7 @@ title(hcb,'log_{10}(PGA)','fontsize',6);
 
 ```
 %Make predictions on grid points and set the base to '10'
-z_hat_exp_delog=prediction(y_event,x_event,u_event,w_event,v_event,output_real,@design,'Exp','10');
+[z_hat_exp_delog,v_hat_exp_delog]=prediction(y_event,x_event,u_event,w_event,v_event,output_real,@design,'Exp','10');
 %Draw the shakemap with log-scaled (1) color bar
 lim=[min(z_hat_exp_delog),max(z_hat_exp_delog)];
 f=shakemap(latRange,lonRang,Italyborder,w_event,v_event,z_hat_exp_delog,1,lim);
@@ -329,6 +341,8 @@ title(hcb,'PGA (cm/s^2)','fontsize',6);
 The resulting shake map is shown below, where the triangles are recording sites.
 
 <img src="https://raw.githubusercontent.com/mingdeyu/GMPE-estimation/master/example_figures/shakemap_pga.png" width="500">
+
+Note that one can use `v_hat_exp` or `v_hat_exp_delog` as the measurements of predictive uncertainties on grid points.
 
 ## Built with
 The scripts are built under MATLAB version R2018a.

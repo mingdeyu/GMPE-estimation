@@ -12,8 +12,8 @@ n=9; %Replace here by the number of linear coefficients in your GMPE!
 %       Block 1 
 %%%%%%%%%%%%%%%%%%%%%%%
 M=zeros(size(x,1),n);
-M(:,4)=gamma/log(10)./(x(:,2).^2+gamma^2);
-M(:,5)=gamma/log(10).*x(:,1)./(x(:,2).^2+gamma^2);
+M(:,4)=gamma(1)/log(10)./(x(:,2).^2+gamma(1)^2);
+M(:,5)=gamma(1)/log(10).*x(:,1)./(x(:,2).^2+gamma(1)^2);
 A{1}=M;
 %%%%%%%%%%%%%%%%%%%%%%%
 

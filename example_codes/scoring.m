@@ -14,7 +14,7 @@
 % spatial correlation. BSSA, 2019.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function Output=scoring(y,x,w,id,f1,f2,gamma0,theta0,tol,cl,cf)
+function Output=scoring(y,x,w,id,f1,f2,gamma0,theta0,tol,cl,cf,gamma_cstr)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function computes the estimates of user-defined GM model
 % with stationary and isotropic correlation functions by the method of Scoring
@@ -35,11 +35,13 @@ function Output=scoring(y,x,w,id,f1,f2,gamma0,theta0,tol,cl,cf)
 %
 % f2: a function handle that uses x and nonlinear coefficients gamma as input and
 % ouputs a cell, each element of which contains the grident of the design
-% matrix B wrt to one nonlinear coefficient in gamma;
+% matrix B wrt to one nonlinear coefficient in gamma. Set f2=[] when 
+% there are no nonlinear coefficients in the GMPE;
 %
-% gamma0: initial values for nonlinear coefficients in the GM prediction function;
+% gamma0: a column vector of initial values for nonlinear coefficients in the GM prediction function.
+% Set gamma0=[] when there are no nonlinear coefficients in the GMPE;
 %
-% theta0=(\tau^2; \sigma^2; h): initial values for inter- and intraevent variances 
+% theta0=(\tau^2; \sigma^2; h): a column vector of initial values for inter- and intraevent variances 
 % \tau^2 and \sigma^2, and range paramter h in the correlation function;
 %
 % tol: the tolerance level set by the user;
@@ -49,8 +51,15 @@ function Output=scoring(y,x,w,id,f1,f2,gamma0,theta0,tol,cl,cf)
 %
 % cf: the type of the covariance function: currently support 'No spatial'
 % type (No), 'exponential' type (Exp), Matern type with v=1.5 (Matern1.5)
-% and 'squared exponential' type (SExp).
+% and 'squared exponential' type (SExp);
 %
+% gamma_cstr: a binary vector indicating whether a particular nonlinear coefficient has positivity
+% constraint: 1 indicates that the corresponding nonlinear coefficient should be positive 
+% and 0 indicates no constraints for the corresponding nonlinear coefficient. Note that for nonlinear
+% coefficents that appear in the form of square, e.g. g^2, even g has to be positive there is no need
+% to put positivity constraint on it due to the symmetry introduced by the squaring. Set gamma_cstr=[] when 
+% there are no nonlinear coefficients in the GMPE.
+% 
 % OUTPUTS:
 % An output structure which contains:
 %
@@ -70,7 +79,16 @@ function Output=scoring(y,x,w,id,f1,f2,gamma0,theta0,tol,cl,cf)
 %initialisation
 stopping=1;
 it=0;
+%Transform the gamma by gamma=exp(gamma_trans) according to gamma_cstr so 
+%convert constraint to unconstraint problem
 gamma=gamma0;
+gamma_cstr=logical(gamma_cstr);
+if ~isempty(gamma)
+    gamma_trans=gamma;
+    gamma_trans(gamma_cstr)=log(gamma_trans(gamma_cstr));
+else
+    gamma_trans=gamma;
+end
 %Transform the theta by theta=exp(theta_trans) so convert constraint to
 %unconstraint problem
 theta_trans=log(theta0);
@@ -106,10 +124,17 @@ formatSpec = 'Iteration %i Loglikelihood %10.4f\n';
 fprintf(formatSpec,it,ll);
 it=it+1;
 theta_trans_old=theta_trans;
-gamma_old=gamma;
+if ~isempty(gamma)
+gamma_trans_old=gamma_trans;
+end
 ll_old=ll;
 %Compute additional elements in the gradients and information matrix
+if ~isempty(gamma)
 A1=f2(x,gamma); %B_\gamma
+%Correction for positivity constraints
+pos=exp(gamma_trans.*gamma_cstr);
+A1=correct(A1,pos);
+end
 
 switch cf
     case 'No'
@@ -125,20 +150,28 @@ end
 A3=(y-B*beta);
 %Compute gradients
 St=Stheta(Omega,A2,A3);
+if ~isempty(gamma)
 Sg=Sgamma(Omega,A1,A3,beta);
+end
 
 %Compute information matrices
+if ~isempty(gamma)
 Igg=Igamma(Omega,A1,beta);
 Igb=Igammabeta(Omega,A1,B,beta);
+end
 Ibb=B'/Omega*B;
 Itt=Itheta(Omega,A2);
-%Step halving to gurantee the increase if the log-likelihood function
+%Step halving to gurantee the increase of the log-likelihood function
 ll=ll_old-1; %temporarily decrease the log-likelihood to enter the step-halving
 delta=1;
 while ll<ll_old
 %Update gamma
-gamma=gamma_old+delta*((Igg-Igb/Ibb*Igb')\Sg);
-B=design(x,gamma);
+if ~isempty(gamma)
+gamma_trans=gamma_trans_old+delta*((Igg-Igb/Ibb*Igb')\Sg);
+gamma=gamma_trans;
+gamma(gamma_cstr)=exp(gamma(gamma_cstr));
+B=f1(x,gamma);
+end
 %Update theta
 theta_trans=theta_trans_old+delta.*modify(St,Itt);
 
@@ -165,30 +198,47 @@ delta=delta/2;
 end
 
 %Stopping rule
-diffg=abs(gamma-gamma_old);
-difft=abs(theta_trans-theta_trans_old);
-diff=[diffg,difft']';
-mag=[abs(gamma);abs(theta_trans)];
+if ~isempty(gamma)
+    diffg=abs(gamma_trans-gamma_trans_old);
+    difft=abs(theta_trans-theta_trans_old);
+    diff=[diffg;difft]; 
+    mag=[abs(gamma_trans);abs(theta_trans)];
+else
+    difft=abs(theta_trans-theta_trans_old);
+    diff=difft;
+    mag=abs(theta_trans);
+end
 stopping=max(diff./max([mag,10*ones(size(mag))],2));
 end
 disp('Converged!')
-%Arrange the results to obtain estimates of of estimators of (beta, gamma and theta_trans)
+%Arrange the results to obtain estimates of of estimators of (beta, gamma_trans and theta_trans)
 %(first cell) and (beta, gamma and theta) (second cell).
-estimates_all=est(beta, gamma, theta_trans);
+estimates_all=est(beta, gamma, gamma_trans, theta_trans);
 estimates(1).beta=estimates_all{2}(1:length(beta));
-estimates(1).gamma=estimates_all{2}(length(beta)+1:length(beta)+length(gamma));
+if ~isempty(gamma)
+    estimates(1).gamma=estimates_all{2}(length(beta)+1:length(beta)+length(gamma));
+end
 estimates(1).theta=estimates_all{2}(end-2:end);
-%Compute asymptotic standard error estimates of estimators of (beta, gamma and
+%Compute asymptotic standard error estimates of estimators of (beta, gamma_trans and
 %theta_trans) (first cell) and (beta, gamma and theta) (second cell)
-se_all=sefct(Igg,Igb,Ibb,Itt,theta_trans);
+if ~isempty(gamma)
+    se_all=sefct(Igg,Igb,Ibb,Itt,gamma_trans,theta_trans,gamma_cstr);
+else
+    se_all=sefct([],[],Ibb,Itt,gamma_trans,theta_trans,gamma_cstr);
+end
 se(1).beta=se_all{2}(1:length(beta));
-se(1).gamma=se_all{2}(length(beta)+1:length(beta)+length(gamma));
+if ~isempty(gamma)
+    se(1).gamma=se_all{2}(length(beta)+1:length(beta)+length(gamma));
+end
 se(1).theta=se_all{2}(end-2:end);
 %Compute the cl% confidence interval for (beta, gamma and theta_trans)
 %(first cell) and (beta, gamma and theta) (second cell)
-ci_all=CI(estimates_all{1},se_all{1},cl);
+pos_cstr=[logical(zeros(length(beta),1));gamma_cstr;logical(ones(length(theta_trans),1))];
+ci_all=CI(estimates_all{1},se_all{1},cl,pos_cstr);
 ci(1).beta=ci_all{2}(1:length(beta),:);
-ci(1).gamma=ci_all{2}(length(beta)+1:length(beta)+length(gamma),:);
+if ~isempty(gamma)
+    ci(1).gamma=ci_all{2}(length(beta)+1:length(beta)+length(gamma),:);
+end
 ci(1).theta=ci_all{2}(end-2:end,:);
 %Compute AIC and BIC
 AIC=-2*ll+2*length(estimates_all{2});
@@ -227,6 +277,15 @@ end
 pairdis=deg2km(distance(X1(:,1),X1(:,2),X1(:,3),X1(:,4)));
 subdis=vec2mat(pairdis, m);
 c{1,j}=subdis;
+end
+end
+
+function A=correct(A,pos)
+%This function correct the gradient of design matrix wrt gamma 
+%with the posivity constraints
+n=length(A);
+for i=1:n
+    A{i}=A{i}.*pos(i);
 end
 end
 
@@ -560,43 +619,66 @@ z=forward(L,A);
 p=backward(L,z);
 end
 
-function estimates=est(beta, gamma, theta_trans)
+function estimates=est(beta, gamma, gamma_trans, theta_trans)
 
-estimates{1}=[beta',gamma',theta_trans']';
+estimates{1}=[beta',gamma_trans',theta_trans']';
 theta=exp(theta_trans);
 estimates{2}=[beta',gamma',theta']';
 
 
 end
 
-function se=sefct(Igg,Igb,Ibb,Itt,trans_theta)
+function se=sefct(Igg,Igb,Ibb,Itt,trans_gamma,trans_theta,gamma_cstr)
 %This function computes the asymptotic standard error estimates of the
-%ML estimators of (beta, gamma, theta_trans) and (beta, gamma, theta) by
+%ML estimators of (beta, gamma_trans, theta_trans) and (beta, gamma, theta) by
 %Delta method
+if ~isempty(trans_gamma)
 IBB=Igg-Igb/Ibb*Igb';
-SEg=sqrt(1/IBB);
-SEb=sqrt(diag(inv(Ibb)+1/IBB*Ibb\Igb'*Igb/Ibb));
+    if rcond(IBB) < eps
+        SEg=zeros(size(IBB,1),1);
+        SEb=zeros(size(Ibb,1),1);
+        warning('Information matrix of gamma is ill-conditioned. Asymptotic standard errors of gamma and beta are set to zero')
+    else
+        SEg=sqrt(diag(inv(IBB)));
+        SEb=sqrt(diag(inv(Ibb)+Ibb\Igb'/IBB*Igb/Ibb));
+    end
+else
+    if rcond(Ibb) < eps
+        SEg=[];
+        SEb=zeros(size(Ibb,1),1);
+        warning('Information matrix of beta is ill-conditioned. Asymptotic standard error of beta is set to zero')
+    else
+        SEg=[];
+        SEb=sqrt(diag(inv(Ibb)));
+    end
+end
 if rcond(Itt) < eps
     SEt=zeros(size(Itt,1),1);
+    warning('Information matrix of theta is ill-conditioned. Asymptotic standard error of theta is set to zero')
 else
     SEt=sqrt(diag(inv(Itt)));
 end
-%asymptotic standard error estimates of (beta, gamma, theta_trans)
+%asymptotic standard error estimates of (beta, gamma_trans, theta_trans)
 se{1}=[SEb;SEg;SEt];
 %asymptotic standard error estimates of (beta, gamma, theta) by Delta
 %method
-se{2}=[SEb;SEg;SEt.*exp(trans_theta)];
+if ~isempty(trans_gamma)
+    pos=exp(trans_gamma.*gamma_cstr);
+    se{2}=[SEb;SEg.*pos;SEt.*exp(trans_theta)];
+else
+    se{2}=[SEb;SEt.*exp(trans_theta)];    
+end
 end
 
-function ci=CI(estimates,se,cl)
-%This function computes the cl% confidence intervals for (beta, gamma, theta_trans)
+function ci=CI(estimates,se,cl,pos_cstr)
+%This function computes the cl% confidence intervals for (beta, gamma_trans, theta_trans)
 %and (beta, gamma, theta)
 interval=se.*norminv(1-(1-cl/100)/2);
 left=estimates-interval;
 right=estimates+interval;
 ci{1}=[left,right];
 ci{2}=ci{1};
-ci{2}(end-2:end,:)=exp(ci{2}(end-2:end,:));
+ci{2}(pos_cstr,:)=exp(ci{2}(pos_cstr,:));
 end
 
 function v = logdet(A, op)
