@@ -349,7 +349,7 @@ The resulting shake map is shown below, where the triangles are recording sites.
 
 <img src="https://raw.githubusercontent.com/mingdeyu/GMPE-estimation/master/example_figures/shakemap_pga.png" width="500">
 
-Note that one can use `v_hat_exp` or `v_hat_exp_delog` as the measurements of predictive uncertainties on grid points.
+Note that one can use `v_hat_exp` or `v_hat_exp_delog` as the measurements of predictive uncertainty on grid points.
 
 ## Built with
 The scripts are built under MATLAB version R2018a.
