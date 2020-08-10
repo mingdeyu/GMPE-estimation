@@ -275,14 +275,12 @@ output_real=scoring(y,x,w,id,@design,@Bg,gamma0_exp,theta0_exp,tol,cl,'Exp',gamm
       .             .             .
       .             .             .
       .             .             .
-  Iteration 32 Loglikelihood  -675.1154
-  Iteration 33 Loglikelihood  -675.1152
-  Iteration 34 Loglikelihood  -675.1150
-  Iteration 35 Loglikelihood  -675.1148
-  Iteration 36 Loglikelihood  -675.1146
-  Iteration 37 Loglikelihood  -675.1144
-  Iteration 38 Loglikelihood  -675.1143
-  Iteration 39 Loglikelihood  -675.1142
+  Iteration 32 Loglikelihood  -675.1151
+  Iteration 33 Loglikelihood  -675.1149
+  Iteration 34 Loglikelihood  -675.1147
+  Iteration 35 Loglikelihood  -675.1146
+  Iteration 36 Loglikelihood  -675.1144
+  Iteration 37 Loglikelihood  -675.1143
   Converged!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ```

@@ -218,7 +218,7 @@ estimates(1).beta=estimates_all{2}(1:length(beta));
 if ~isempty(gamma)
     estimates(1).gamma=estimates_all{2}(length(beta)+1:length(beta)+length(gamma));
 end
-estimates(1).theta=estimates_all{2}(end-2:end);
+estimates(1).theta=estimates_all{2}(length(beta)+length(gamma)+1:end);
 %Compute asymptotic standard error estimates of estimators of (beta, gamma_trans and
 %theta_trans) (first cell) and (beta, gamma and theta) (second cell)
 if ~isempty(gamma)
@@ -230,7 +230,7 @@ se(1).beta=se_all{2}(1:length(beta));
 if ~isempty(gamma)
     se(1).gamma=se_all{2}(length(beta)+1:length(beta)+length(gamma));
 end
-se(1).theta=se_all{2}(end-2:end);
+se(1).theta=se_all{2}(length(beta)+length(gamma)+1:end);
 %Compute the cl% confidence interval for (beta, gamma and theta_trans)
 %(first cell) and (beta, gamma and theta) (second cell)
 pos_cstr=[logical(zeros(length(beta),1));gamma_cstr;logical(ones(length(theta_trans),1))];
@@ -239,7 +239,7 @@ ci(1).beta=ci_all{2}(1:length(beta),:);
 if ~isempty(gamma)
     ci(1).gamma=ci_all{2}(length(beta)+1:length(beta)+length(gamma),:);
 end
-ci(1).theta=ci_all{2}(end-2:end,:);
+ci(1).theta=ci_all{2}(length(beta)+length(gamma)+1:end,:);
 %Compute AIC and BIC
 AIC=-2*ll+2*length(estimates_all{2});
 BIC=-2*ll+length(estimates_all{2})*log(length(y));
